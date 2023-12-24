@@ -1,31 +1,31 @@
 package wiseSaying.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import wise.saying.practice.Container;
 import wise.saying.practice.Rq;
 import wiseSaying.entity.WiseSaying;
+import wiseSaying.service.WiseSayingService;
 
 public class WiseSayingController {
-
-	private int lastId = 0;
-	List<WiseSaying> wiseSayings = new ArrayList<>();
+	WiseSayingService wiseSayingService = new WiseSayingService();
 
 	public void write() {
-		int id = lastId + 1;
+
 		System.out.print("명언 : ");
 		String content = Container.getScanner().nextLine().trim();
 		System.out.print("작가 : ");
 		String author = Container.getScanner().nextLine().trim();
 
-		wiseSayings.add(new WiseSaying(id, content, author));
+		int id = wiseSayingService.write(content, author);
 
 		System.out.printf("%d번 명언이 등록되었습니다.\n", id);
-		lastId++;
+
 	}
 
 	public void list() {
+		List<WiseSaying> wiseSayings = wiseSayingService.findAll();
+
 		if (wiseSayings.size() == 0) {
 			System.out.println("등록된 명언이 없습니다.");
 		}
@@ -39,6 +39,8 @@ public class WiseSayingController {
 	}
 
 	public void remove(Rq rq) {
+		List<WiseSaying> wiseSayings = wiseSayingService.findAll();
+
 		int id = rq.getIntParam("id", -1);
 
 		if (id == -1) {
@@ -50,11 +52,13 @@ public class WiseSayingController {
 			System.out.printf("%d번 명언은 존재하지 않습니다.\n", id);
 			return;
 		}
-		wiseSayings.remove(wiseSayings.get(id - 1));
+		wiseSayingService.remove(id);
 		System.out.printf("%d번 명언이 삭제되었습니다.\n", id);
 	}
 
 	public void modify(Rq rq) {
+		List<WiseSaying> wiseSayings = wiseSayingService.findAll();
+
 		int id = rq.getIntParam("id", -1);
 
 		if (id == -1) {
@@ -69,12 +73,12 @@ public class WiseSayingController {
 		System.out.println("기존 명언" + wiseSayings.get(id - 1).getContent());
 		System.out.print("새 명언 : ");
 		String content = Container.getScanner().nextLine().trim();
-		wiseSayings.get(id - 1).setContent(content);
 
 		System.out.println("기존 작가" + wiseSayings.get(id - 1).getAuthor());
 		System.out.print("새 작가 : ");
 		String author = Container.getScanner().nextLine().trim();
-		wiseSayings.get(id - 1).setAuthor(author);
+
+		wiseSayingService.modify(id, content, author);
 
 		System.out.printf("%d번 명언이 수정되었습니다.\n", id);
 
